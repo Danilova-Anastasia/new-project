@@ -9,7 +9,7 @@ def generate_text():
     parser.add_argument('--length', type=int, help='длина генерируемой последовательности')
     parser.add_argument('--prefix', type=str, default='-1',
                         help='необязательный аргумент. Начало предложения одно или два cлова. '
-                             'Если не указано, выбираем начальное слово случайно из всех слов.')
+                             'Если не указано, начальное слово будет выбрано случайно из всех слов.')
 
     my_namespace = parser.parse_args()
 
