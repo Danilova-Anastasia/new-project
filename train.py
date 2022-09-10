@@ -15,7 +15,7 @@ def gen_lines_from_files(list_of_corpuses):
 
 
 def gen_tokens(lines):
-    alphabet = re.compile(u'[а-яА-Я0-9]+')
+    alphabet = re.compile(u'[а-яА-Яa-zA-Z0-9’]+')
     for line in lines:
         for token in alphabet.findall(line):
             yield token
@@ -71,28 +71,34 @@ class MyTrigramModel:
         return phrase.capitalize() + '.'
 
 
-parser = argparse.ArgumentParser(description='Обучение триграмной модели')
-parser.add_argument('--model', type=str, help='путь к файлу, в который сохраняется модель')
-parser.add_argument('--inputdir', type=str, default='stdin',
-                    help='путь к директории, в которой лежит коллекция документов. '
-                         'Если данный аргумент не задан, считать, что тексты вводятся из stdin.')
-my_namespace = parser.parse_args()
-directory = my_namespace.inputdir
+def fit_model():
+    parser = argparse.ArgumentParser(description='Обучение триграмной модели')
+    parser.add_argument('--model', type=str, help='путь к файлу, в который сохраняется модель')
+    parser.add_argument('--inputdir', type=str, default='stdin',
+                        help='путь к директории, в которой лежит коллекция документов. '
+                             'Если данный аргумент не задан, считать, что тексты вводятся из stdin.')
+    my_namespace = parser.parse_args()
+    directory = my_namespace.inputdir
 
-# Потоковый ввод
-if directory == 'stdin':
-    with open('text_stdin.txt', 'w', encoding='utf-8') as file:
-        for line in sys.stdin:
-            file.write(line)
-    list_of_filenames = ['text_stdin.txt']
-else:
-    # список файлов в директории для обучения
-    list_of_filenames = [directory + '\\' + s for s in os.listdir(directory)]
+    # Потоковый ввод
+    if directory == 'stdin':
+        with open('text_stdin.txt', 'w', encoding='utf-8') as file:
+            for line in sys.stdin:
+                file.write(line)
+        # Сохраняем введеный текст в файл
+        list_of_filenames = ['text_stdin.txt']
+    else:
+        # список файлов в директории для обучения
+        list_of_filenames = [directory + '\\' + s for s in os.listdir(directory)]
 
-# Обучение модели
-my_model = MyTrigramModel.fit(list_of_filenames)
+    # Обучение модели
+    my_model = MyTrigramModel.fit(list_of_filenames)
 
-# Сохранение модели
-filename = my_namespace.model
-with open(filename, 'wb') as file:
-    pickle.dump(my_model, file)
+    # Сохранение модели
+    filename = my_namespace.model
+    with open(filename, 'wb') as file:
+        pickle.dump(my_model, file)
+
+
+if __name__ == '__main__':
+    fit_model()
